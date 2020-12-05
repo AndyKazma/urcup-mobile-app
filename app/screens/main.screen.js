@@ -32,10 +32,11 @@ const MainScreen = ({navigation}) => {
                 style={{position: 'absolute', top: 20, left: 10}}
             />
             <View style={{flex: 1}}>
-                <View style={{flexDirection: 'row', paddingTop: 80, paddingBottom: 0}}>
+                <View style={{flexDirection: 'row', paddingTop: 120, paddingBottom: 0}}>
                     <View style={styles.divider_A}/>
                     <View style={styles.title_A}>
-                        <Image source={require('../resources/icon.png')} width={150} height={150}/>
+                        <Image resizeMode={'cover'} source={require('../resources/final.png')} width={150}
+                               height={150}/>
                     </View>
                     <View style={styles.divider_A}/>
                 </View>
@@ -43,23 +44,26 @@ const MainScreen = ({navigation}) => {
                     textAlign: 'center',
                     fontSize: 20,
                     color: Theme.mainColor,
-                    fontFamily: 'TruenoSemibold',
+                    fontFamily: 'TruenoRg',
+                    marginTop: 40,
                 }}>Witamy</Text>
-                <Text style={{textAlign: 'center', fontSize: 20, color: Theme.mainColor, fontFamily: 'TruenoSemibold'}}>w
-                    wypożyczalni kubków</Text>
-                <Text style={{textAlign: 'center', fontSize: 20, color: Theme.mainColor, fontFamily: 'TruenoSemibold'}}>wielorazowego
-                    użytku</Text>
+                <Text style={{textAlign: 'center', fontSize: 20, color: Theme.mainColor, fontFamily: 'TruenoRg'}}>
+                    w świecie kubków
+                </Text>
+                <Text style={{textAlign: 'center', fontSize: 20, color: Theme.mainColor, fontFamily: 'TruenoRg'}}>
+                    wielorazowego użytku
+                </Text>
             </View>
 
             <View style={{flex: 1, flexDirection: 'column-reverse'}}>
                 <View>
                     <TouchableOpacity
-                        style={[styles.button, {width: Theme.width * 0.8}]}
+                        style={[styles.button, {width: Theme.width * 0.55}]}
                         onPress={() => {
                             navigation.navigate('tab');
                         }}
                     >
-                        <Text style={{color: '#FFF', fontFamily: 'TruenoSemibold'}}>Znajdź punkt</Text>
+                        <Text style={{color: '#FFF', fontFamily: 'TruenoSemibold', fontSize: Theme.width * 0.03}}>Znajdź punkt</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[
@@ -69,9 +73,9 @@ const MainScreen = ({navigation}) => {
                                 borderWidth: 1,
                                 marginTop: 12,
                                 backgroundColor: '#FFF',
-                                marginBottom: 40,
-                                width: Theme.width * 0.5,
-                                alignSelf: "center"
+                                marginBottom: Theme.height * 0.1,
+                                width: Theme.width * 0.55,
+                                alignSelf: 'center',
                             },
                         ]}
                         onPress={() => {
@@ -79,7 +83,7 @@ const MainScreen = ({navigation}) => {
 
                         }}
                     >
-                        <Text style={{color: '#23A6D9', fontFamily: 'TruenoSemibold'}}>Zarejestruj nowy punkt</Text>
+                        <Text style={{color: '#23A6D9', fontFamily: 'TruenoSemibold', fontSize: Theme.width * 0.03}}>Zarejestruj nowy punkt</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -141,14 +145,14 @@ const styles = StyleSheet.create({
     divider_A: {
         backgroundColor: Theme.mainColor,
         height: 1,
-        flex: 1,
-        alignSelf: 'center',
+        width: Theme.width * 0.1,
+        marginTop: 85
     },
     title_A: {
-        fontSize: 38,
-        fontWeight: '800',
-        color: Theme.blackColor,
-        paddingHorizontal: 64,
+        width: Theme.width * 0.7,
+        alignSelf: "center",
+        alignItems: "center"
+
     },
     cupCounter: {
         borderRadius: 14,

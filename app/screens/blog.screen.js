@@ -94,10 +94,11 @@ const BlogScreen = ({navigation}) => {
                         fontWeight: '600',
                         flexWrap: 'wrap',
                         padding: 10,
+                        paddingLeft: 0,
                         paddingBottom: 5,
                         color: Theme.mainColor,
                     }}>{Moment(item.post_date).format('D MMMM YYYY')}</Text>
-                    <Text style={{fontSize: 20, flexWrap: 'wrap', fontWeight: 'bold', marginLeft: 10}}>{item.post_title}</Text>
+                    <Text style={{fontSize: 20, flexWrap: 'wrap', fontWeight: 'bold'}}>{item.post_title}</Text>
 
                     <View style={{height: 1, backgroundColor: Theme.disabledColor, marginTop: 10, marginBottom: 10}}/>
 

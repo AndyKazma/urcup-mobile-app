@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     Text,
     RefreshControl,
-    SafeAreaView, Alert, ActivityIndicator,
+    SafeAreaView, Alert, ActivityIndicator, Linking,
 } from 'react-native';
 import {
     widthPercentageToDP as wp,
@@ -70,9 +70,13 @@ const ListScreen = (props) => {
             <View style={{backgroundColor: Theme.whiteColor, borderRadius: 15, flexDirection: "row", width: Theme.width * 0.90, alignSelf: "center", marginTop: 10, padding: 10}}>
                 <Image style={{width: 120, height: 90, borderRadius: 10}} source={{uri: item.place_image}}/>
                 <View style={{justifyContent:"center", marginLeft:10, width: Theme.width * 0.55}}>
-                    <Text style={{fontSize: 14, fontWeight: "600", flexWrap:"wrap"}}>{item.place_title}</Text>
+                    <Text style={{fontSize: 14, fontWeight: "600"}}>{item.place_title}</Text>
                     <Text style={{fontSize: 12, flexWrap:"wrap"}}>{item.place_address}</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=> {
+                        Linking.openURL(
+                            `geo:0,0?q=${parseFloat(item.place_latitude)},${parseFloat(item.place_longitude)}`,
+                        )
+                    }}>
                         <View style={{borderWidth:3/4, borderColor: Theme.mainColor, padding:6, borderRadius: 25, alignItems:"center", marginTop:10, width: Theme.width * 0.3}}>
                             <Text style={{fontSize:12}}>Nwaiguj</Text>
                         </View>
@@ -97,8 +101,10 @@ const ListScreen = (props) => {
                 style={{ height: '100%' }}
                 data={places}
                 renderItem={renderItem}
+                maxToRenderPerBatch={10}
+                initialNumToRender={10}
                 // @ts-ignore
-                keyExtractor={(item, index) => item.id}
+                keyExtractor={(item, index) => item.toString() + index.toString()}
                 ListEmptyComponent={<View style={{ alignItems: 'center', justifyContent: 'center', marginTop: Theme.height * 0.4 }}><Text style={{  }}>Nothing Found</Text></View>}
                 refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={onRefresh}/> }
             />

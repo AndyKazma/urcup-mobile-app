@@ -7,17 +7,14 @@ import {
     Animated,
     TouchableOpacity,
     Text, ScrollView,
-    SafeAreaView, Alert,
+    SafeAreaView, Alert,Linking
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Callout} from 'react-native-maps';
 import {request, PERMISSIONS} from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
-import DummyMarkers from '../data/DummyData';
 import Theme from '../theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {BottomSheet} from 'react-native-btr';
-
-import {SocialIcon} from 'react-native-elements';
 import api from '../api/api';
 
 
@@ -25,7 +22,7 @@ const CARD_HEIGHT = Theme.height / 4;
 const CARD_WIDTH = CARD_HEIGHT + 50;
 
 const MapScreen = ({navigation}) => {
-    const [initialPosition, setInitialPosition] = React.useState(initialPosition);
+    const [initialPosition, setInitialPosition] = React.useState();
     const [isVisible, setVisibility] = React.useState(false);
     const [data, setData] = React.useState({});
     const [places, setPlaces] = React.useState([]);
@@ -91,7 +88,7 @@ const MapScreen = ({navigation}) => {
     const locateCurrentPosition = () => {
         console.log('current step 1');
         Geolocation.getCurrentPosition(
-            (position) => {
+            async (position) => {
                 console.log('position', JSON.stringify(position));
 
                 let initialPosition = {
@@ -103,20 +100,21 @@ const MapScreen = ({navigation}) => {
                     longitudeDelta: 0.035,
                 };
 
-                setInitialPosition(initialPosition);
+                await setInitialPosition(initialPosition);
+                console.log("initial:", initialPosition);
             },
             (error) => console.log(error.message),
-            {enableHighAccuracy: true, timeout: 5000, maximumAge: 3600000},
+            {timeout: 25000, maximumAge: 3600000},
         );
     };
 
     const handleMarkerPress = (index, marker) => {
-        scroll.current.getNode().scrollTo({x: index * 225, y: 0, animated: true});
+        scroll.current.getNode().scrollTo({x: index * 275, y: 0, animated: true});
 
         _map.current.animateToRegion(
             {
-                latitude: marker.coordinate.latitude,
-                longitude: marker.coordinate.longitude,
+                latitude: parseFloat(marker.place_latitude),
+                longitude: parseFloat(marker.place_longitude),
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             },
@@ -129,7 +127,7 @@ const MapScreen = ({navigation}) => {
     };
     const animation = new Animated.Value(0);
 
-    const interpolations = DummyMarkers.map((marker, index) => {
+    const interpolations = places.map((marker, index) => {
 
         const inputRange = [
             (index - 1) * CARD_WIDTH,
@@ -138,16 +136,17 @@ const MapScreen = ({navigation}) => {
         ];
         const scale = animation.interpolate({
             inputRange,
-            outputRange: [1, 2.5, 1],
+            outputRange: [1, 1.5, 1],
             extrapolate: 'clamp',
         });
         const opacity = animation.interpolate({
             inputRange,
-            outputRange: [0.35, 1, 0.35],
+            outputRange: [0.25, 1, 0.35],
             extrapolate: 'clamp',
         });
         return {scale, opacity};
     });
+    console.log(places);
 
     const renderBottomSheet = () => {
         //console.log("marker", marker);
@@ -178,13 +177,17 @@ const MapScreen = ({navigation}) => {
                                     margin: 15,
                                     marginBottom: 5,
                                 }}>{data.place_title}</Text>
-                            <Text style={styles.textDetails}>{data.place_postal_code + " " + data.place_city}</Text>
-                            <Text style={styles.textDetails}>{data.adress}</Text>
-                            <Text style={[styles.textDetails, {marginBottom: 10}]}>{data.place_URL}</Text>
+                            <Text style={styles.textDetails}>{data.place_postal_code + ' ' + data.place_city}</Text>
+                            <Text style={styles.textDetails}>{data.place_address}</Text>
+                            <Text onPress={()=> {
+                                Linking.openURL(data.place_URL);
+                            }} style={[styles.textDetails, {marginBottom: 10}]}>{data.place_URL}</Text>
                             <View style={{
                                 width: Theme.width * 0.85,
                                 backgroundColor: Theme.whiteColor,
-                                borderRadius: 10,
+                                borderTopRightRadius: 10,
+                                borderTopLeftRadius: 10,
+                                alignSelf: "center"
                             }}>
                                 <Text style={{padding: 10}}>{data.place_description}</Text>
                             </View>
@@ -199,19 +202,19 @@ const MapScreen = ({navigation}) => {
     React.useEffect(() => {
         animation.addListener(({value}) => {
             let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-            if (index >= DummyMarkers.length) {
-                index = DummyMarkers - 1;
+            if (index >= places.length) {
+                index = places - 1;
             }
             if (index <= 0) {
                 index = 0;
             }
 
-            clearTimeout(regionTimeout);
+
             let regionTimeout = setTimeout(() => {
                 if (index !== index) {
                     let index = index;
-                    const {coordinate} = DummyMarkers[index];
-                    map.current.animateToRegion(
+                    const {coordinate} = places[index];
+                    _map.current.animateToRegion(
                         {
                             ...coordinate,
                             latitudeDelta: initialPosition.latitudeDelta,
@@ -221,8 +224,13 @@ const MapScreen = ({navigation}) => {
                     );
                 }
             }, 10);
+            clearTimeout(regionTimeout);
         });
     }, []);
+    const goToInitialLocation = () => {
+        let initialRegion = Object.assign({}, initialPosition);
+        _map.current.animateToRegion(initialRegion, 2000);
+    };
 
     //console.log('data: ', data);
 
@@ -232,19 +240,15 @@ const MapScreen = ({navigation}) => {
                 ref={_map}
                 provider={PROVIDER_GOOGLE} // remove if not using Google Maps
                 style={styles.map}
-                initialRegion={{
-                    latitude: 52.2368434,
-                    longitude: 21.0246758,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-                zoomEnabled={true}
-                zoomControlEnabled={true}
+                initialRegion={initialPosition}
                 showsMyLocationButton={true}
                 followsUserLocation={true}
                 showsUserLocation={true}
+                onMapReady={()=> {
+                    goToInitialLocation();
+                }}
             >
-                {DummyMarkers.map((marker, index) => {
+                {places.map((marker, index) => {
                     const scaleStyle = {
                         transform: [
                             {
@@ -257,7 +261,11 @@ const MapScreen = ({navigation}) => {
                     };
                     return (
                         <MapView.Marker key={index} onPress={() => handleMarkerPress(index, marker)}
-                                        coordinate={marker.coordinate}>
+                                        coordinate={{
+                                            latitude: parseFloat(marker.place_latitude),
+                                            longitude: parseFloat(marker.place_longitude),
+                                        }}
+                        >
                             <Animated.View style={[styles.markerWrap, opacityStyle]}>
                                 <Animated.View style={[styles.ring, scaleStyle]}/>
                                 <View style={styles.marker}/>
@@ -289,6 +297,7 @@ const MapScreen = ({navigation}) => {
                 style={styles.scrollView}
                 contentContainerStyle={styles.endPadding}
             >
+
                 {places.map((marker, index) => (
                     <TouchableOpacity onPress={() => {
                         setData(marker);
@@ -306,9 +315,23 @@ const MapScreen = ({navigation}) => {
                                     {marker.place_address}
                                 </Text>
                             </View>
-                            <TouchableOpacity>
-                                <View style={{borderWidth:3/4, borderColor: Theme.mainColor, padding:6, borderRadius: 25, alignItems:"center", marginTop:10, width: Theme.width * 0.4, alignSelf:"center"}}>
-                                    <Text style={{fontSize:12}}>Nwaiguj</Text>
+                            <TouchableOpacity onPress={()=> {
+                                Linking.openURL(
+                                    `geo:0,0?q=${parseFloat(marker.place_latitude)},${parseFloat(marker.place_longitude)}`,
+                                )
+                            }}>
+
+                                <View style={{
+                                    borderWidth: 3 / 4,
+                                    borderColor: Theme.mainColor,
+                                    padding: 6,
+                                    borderRadius: 25,
+                                    alignItems: 'center',
+                                    marginTop: 10,
+                                    width: Theme.width * 0.4,
+                                    alignSelf: 'center',
+                                }}>
+                                    <Text style={{fontSize: 12}}>Nwaiguj</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -335,15 +358,12 @@ const MapScreen = ({navigation}) => {
                         style={{position: 'absolute', top: 10, left: 0}}
                     />
                 </View>
-                <View>
-                    <Image style={{
-                        height: 50,
-                        width: 130,
-                        overflow: 'visible',
-                        resizeMode: 'cover',
-                        marginLeft: Theme.width * 0.30,
-                    }}
-                           source={require('../resources/urcup.png')}/>
+                <View style={{marginLeft:Theme.width * 0.35}}>
+                    <Image
+                        resizeMode={"cover"}
+                        width={130}
+                        height={60}
+                        source={require('../resources/top.png')}/>
                 </View>
             </View>
 
@@ -391,11 +411,13 @@ const styles = StyleSheet.create({
     },
     textContent: {
         flex: 1,
+        alignItems:"center"
     },
     cardtitle: {
         fontSize: 12,
         marginTop: 5,
         fontWeight: 'bold',
+
     },
     cardDescription: {
         fontSize: 12,
@@ -409,7 +431,7 @@ const styles = StyleSheet.create({
         width: 25,
         height: 25,
         borderRadius: 15,
-        backgroundColor: 'rgba(130,4,150, 0.9)',
+        backgroundColor: 'rgba(130,4,150, 1)',
     },
     ring: {
         width: 25,
@@ -427,7 +449,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 20
+        borderRadius: 20,
     },
     textDetails: {
         fontSize: 14, textAlign: 'center', color: Theme.mainColor, flexWrap: 'wrap', flex: 1,

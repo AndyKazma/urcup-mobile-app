@@ -6,7 +6,7 @@ import {
     Image,
     TouchableOpacity,
     Text,
-    SafeAreaView,
+    SafeAreaView, ScrollView,
 } from 'react-native';
 import {
     widthPercentageToDP as wp,
@@ -141,7 +141,9 @@ const BlogDetailScreen = ({navigation, route}) => {
                 <Text>{Moment(details.post_date).format('D MMMM YYYY')}</Text>
 
 
-                <Text style={{marginTop: 20}}>{details.post_content}</Text>
+                <ScrollView>
+                    <Text style={{marginTop: 20}}>{details.post_content}</Text>
+                </ScrollView>
             </View>
 
         </SafeAreaView>

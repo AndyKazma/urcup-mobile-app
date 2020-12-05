@@ -25,17 +25,17 @@ export default function PartnerSignUpScreen({route, navigation}) {
     const [link, setLink] = React.useState('');
     const [pCode, setPCode] = React.useState('');
 
-    const clearData  = () => {
-        setName("");
-        setPNumber("");
-        setEmail("");
-        setNip("");
-        setVenue("");
-        setCity("");
-        setAddress("");
-        setLink("");
-        setPCode("");
-    }
+    const clearData = () => {
+        setName('');
+        setPNumber('');
+        setEmail('');
+        setNip('');
+        setVenue('');
+        setCity('');
+        setAddress('');
+        setLink('');
+        setPCode('');
+    };
 
     const signUp = async () => {
         try {
@@ -83,40 +83,46 @@ export default function PartnerSignUpScreen({route, navigation}) {
                 ></View>
                 <View style={{flex: 2, alignItems: 'center'}}>
 
-                    <Text style={{fontWeight: '600', marginTop: 60}}>
-                        Wypełnij formularz i czekaj na telefon
+                    <Text style={{fontWeight: '600', marginTop: 60, color: Theme.mainColor}}>
+                        Wypełnij formularz i czekaj na
+                        kontakt
                     </Text>
 
                     <TextInput value={venue} onChangeText={(text) => {
                         setVenue(text);
-                    }} style={styles.input} placeholder="Nazwa lokalu"/>
+                    }} style={styles.input} placeholder="Nazwa lokalu *"/>
+                    <TextInput value={nip} onChangeText={(text) => {
+                        setNip(text);
+                    }} style={styles.input} placeholder="SKAKAĆ *"/>
+
+                    <TextInput value={name} onChangeText={(text) => {
+                        setName(text);
+                    }} style={styles.input} placeholder="Imie i nazwisko *"/>
+                    <TextInput value={pNumber} onChangeText={(text) => {
+                        setPNumber(text);
+                    }} style={styles.input} keyboardType={'number-pad'} placeholder="Telefon *"/>
+                    <TextInput value={email} onChangeText={(text) => {
+                        setEmail(text);
+                    }} style={styles.input} keyboardType={'email-address'} placeholder="Adres email *"/>
+                    <TextInput value={pCode} onChangeText={(text) => {
+                        setPCode(text);
+                    }} style={styles.input} placeholder="kod pocztowy"/>
                     <TextInput value={city} onChangeText={(text) => {
                         setCity(text);
                     }} style={styles.input} placeholder="Miasto"/>
                     <TextInput value={address} onChangeText={(text) => {
                         setAddress(text);
                     }} style={styles.input} placeholder="Dokładny adres"/>
-                    <TextInput value={name} onChangeText={(text) => {
-                        setName(text);
-                    }} style={styles.input} placeholder="Imie i nazwisko"/>
-                    <TextInput value={pNumber} onChangeText={(text) => {
-                        setPNumber(text);
-                    }} style={styles.input} keyboardType={"number-pad"} placeholder="Telefon"/>
-                    <TextInput value={email} onChangeText={(text) => {
-                        setEmail(text);
-                    }} style={styles.input} keyboardType={'email-address'} placeholder="Adres email"/>
-                    <TextInput value={nip} onChangeText={(text) => {
-                        setNip(text);
-                    }} style={styles.input} placeholder="SKAKAĆ"/>
+
+
+
                     <TextInput value={link} onChangeText={(text) => {
                         setLink(text);
                     }}
                                style={styles.input}
                                placeholder="Link do zdjęcia lokalu"
                     />
-                    <TextInput value={pCode} onChangeText={(text) => {
-                        setPCode(text);
-                    }} style={styles.input} placeholder="kod pocztowy"/>
+
 
                     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
                         <TouchableOpacity
@@ -166,18 +172,16 @@ export default function PartnerSignUpScreen({route, navigation}) {
                     <View>
                         <MaterialIcons onPress={() => {
                             navigation.goBack();
-                        }} style={{alignSelf: 'center', marginTop: 15, marginLeft: 10}} name={'arrow-back-ios'} size={25}
+                        }} style={{alignSelf: 'center', marginTop: 15, marginLeft: 10}} name={'arrow-back-ios'}
+                                       size={25}
                                        color={Theme.mainColor}/>
                     </View>
-                    <View>
-                        <Image style={{
-                            height: 50,
-                            width: 130,
-                            overflow: 'visible',
-                            resizeMode: 'cover',
-                            marginLeft: Theme.width * 0.25,
-                        }}
-                               source={require('../resources/urcup.png')}/>
+                    <View style={{marginLeft:Theme.width * 0.25}}>
+                        <Image
+                            resizeMode={"cover"}
+                            width={130}
+                            height={60}
+                            source={require('../resources/top.png')}/>
                     </View>
                 </View>
             </View>
